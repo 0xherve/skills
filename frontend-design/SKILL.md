@@ -1,185 +1,92 @@
 ---
 name: frontend-design
-version: 1.0.0
-description: |
-  Build good-looking web interfaces. Use when:
-  - User asks you to build a web app, website, landing page, or HTML page
-  - User asks for a one-off tool, utility, or demo app
-  - User is starting a new frontend project
-  - User wants to improve how something looks
-  - User mentions UI, design, styling, or making something look better
-  This applies to ANY frontend work, not just "design" tasks. Even simple
-  apps benefit from basic design principles.
+description: Design and build web interfaces that look intentional, not templated. Use when building any UI, page, app or HTML; when making a landing page or portfolio; when redesigning an existing site; or when asked to make something look better.
 ---
 
 # Frontend design
 
-Practical tactics for designing and building frontend interfaces. This is about making things look good and work well, not about frameworks or tooling.
+Every rule here is contextual. Read the brief first, then pull only what fits it. 
 
-## Start with the creative vision
+Existing design language in the project wins over everything below. Match its tokens, components and tone before adding anything new. You can also help standardize the design system for the project you are working in.
 
-Before touching code, understand what you're trying to achieve emotionally and aesthetically.
+## 1. Design read
 
-### Tone
+Before any code, read these signals: page kind (app screen, landing, portfolio, editorial, redesign), the user's vibe words, references they linked or named, the audience, existing brand assets, and quiet constraints (public sector, regulated, accessibility-first, kids). Quiet constraints and the audience outrank your taste.
 
-What feeling should this interface convey? Professional and trustworthy? Playful and fun? Calm and minimal? Energetic and bold?
+State the read in one line, with the three dials:
 
-The tone affects every decision: colors, typography, spacing, imagery, micro-interactions.
+> Reading this as: <page kind> for <audience>, with a <vibe> language, leaning toward <design system or aesthetic>. Dials: variance 7, motion 6, density 4.
 
-If there's an existing design language, follow it first. Match the existing tone before introducing new elements. Consistency matters more than novelty.
+- **Variance** (1 symmetric, 10 asymmetric): 1-3 equal grid, centered. 4-7 offsets, mixed aspect ratios, left-aligned headers. 8-10 masonry, fractional grids (`2fr 1fr 1fr`), large empty zones. Asymmetry lives above `md`; below 768px every layout collapses to one column.
+- **Motion** (1 static, 10 cinematic): 1-3 hover and active states only. 4-7 eased CSS transitions and staggered load-ins. 8-10 scroll choreography, pinning, scrubbing.
+- **Density** (1 gallery, 10 cockpit): 1-3 `py-32` to `py-48` between sections. 4-7 `py-16` to `py-24`. 8-10 tight padding, 1px dividers in place of cards, `font-mono` for numbers.
 
-### Aesthetics
+Starting presets: SaaS landing 7/6/4, agency 9/8/3, premium consumer 7/6/3, designer portfolio 8/7/3, developer portfolio 6/5/4, editorial 6/4/3, public sector 3/2/5, app screen 4/3/6. "Minimal, calm, Linear-style" pulls toward 5/3/2; "Awwwards, experimental" toward 9/9/3.
 
-Look at references. What interfaces do you admire that have a similar purpose? What makes them work?
+If the read forks (say, Linear-clean vs Awwwards-experimental), ask exactly one question. Otherwise declare the read and proceed.
 
-Collect screenshots, note what you like about each. Is it the generous whitespace? The bold typography? The subtle shadows? The color palette?
+Vary deliberately. Choose layout, type and palette from the read, and make a different choice from the last page you built for a similar brief.
 
-Don't copy directly, but understand the principles behind what you're drawn to.
+## 2. Foundation
 
-## Then add constraints
+If the brief reads as a real design system (Fluent, Material, Carbon, Polaris, Atlassian, Primer, GOV.UK, USWDS, Radix, shadcn/ui, Bootstrap), install the official package and use it as shipped. One system per project. See [DESIGN-SYSTEMS.md](DESIGN-SYSTEMS.md) for the map, install commands and canonical docs.
 
-Constraints make design easier, not harder. They eliminate decision fatigue.
+Otherwise it's an aesthetic (glass, bento, brutalist, editorial, dark tech, kinetic type). Build with Tailwind and native CSS.
 
-### Spacing scale
+Default stack when the project has none: React or Next.js with Server Components, Tailwind v4 (`@tailwindcss/postcss` or the Vite plugin), Motion from `motion/react`, fonts through `next/font` or self-hosted with `font-display: swap`. Check `package.json` before importing any library and print the install command for anything missing. Interactive pieces (motion, scroll, pointer physics) live in isolated `"use client"` leaf components.
 
-Pick a base unit (4px or 8px) and stick to multiples of it.
+## 3. Constraints
 
-```
-4, 8, 12, 16, 24, 32, 48, 64, 96, 128
-```
+**Scales.** Spacing from a 4px or 8px base (4, 8, 12, 16, 24, 32, 48, 64, 96, 128), no magic numbers. Type from a 1.25 or 1.333 ratio, each size with a job. Body `text-base leading-relaxed max-w-[65ch]`.
 
-Every margin, padding, and gap should come from this scale. No magic numbers like 13px or 47px.
+**Type.** Default display and body sans: Geist, Satoshi, Outfit, Cabinet Grotesk or a brand font. Inter fits neutral, Linear-style or public-sector briefs. Reach for serif only when the brand names one or the brief is editorial, luxury or heritage, and rotate the serif between projects. Emphasise a word with italic or bold of the same family. Italic display words with descenders (`y g j p q`) need `leading-[1.1]` and `pb-1`.
 
-### Type scale
+**Color.** Neutral base (zinc, slate, stone) plus one accent, saturation under 80%. Lock the accent across the whole page. One gray temperature per project. Off-black and off-white in place of pure `#000` and `#fff`. Purple or neon glow only when the brand asks for it.
 
-Pick a ratio (1.25 or 1.333 are common) and generate your sizes:
+**Shape.** One radius system per page (all sharp, all soft 12-16px, or pill for interactive), or a written rule followed everywhere. Shadows tinted to the background hue. Cards only when elevation means hierarchy; otherwise group with spacing, `border-t` or `divide-y`.
 
-```
-12, 14, 16, 20, 24, 32, 40, 48
-```
+**Layout.**
+- CSS Grid for multi-column layouts, not flex percentage math.
+- Full-height sections use `min-h-[100dvh]`.
+- Contain pages with `max-w-7xl mx-auto` or `max-w-[1400px]`.
+- Every multi-column component declares its under-768px fallback in the same file.
+- Navigation fits one line on desktop, 64-72px tall (80px max).
+- Z-index only for real layers (nav, modal, overlay, grain), from a documented scale.
+- Wrap animated pages in `overflow-x-hidden` so off-screen motion never adds a horizontal scrollbar.
 
-Each size has a purpose: body text, subheadings, headings, display text.
+**States.** Every view ships loading (skeleton matching the final shape), empty (says how to populate), and error (inline for forms, toast only for transient). Buttons get `:active` feedback (`scale-[0.98]` or `-translate-y-px`).
 
-### Color palette
+**Forms.** Label above input, helper text, error below, `gap-2`. Every input has a real label; the placeholder is only an example.
 
-Start minimal:
+**Theme.** One theme per page, light, dark or auto at the root; sections stay in it. Design both modes from the start for consumer pages, with Tailwind `dark:` or CSS variable tokens (pick one). Hierarchy and brand accent must hold in both.
 
-- One primary color (your brand or accent)
-- Neutrals: white, black, and 3-4 grays
-- Semantics: success (green), error (red), warning (yellow), and info (blue)
+**Accessibility.** WCAG AA contrast on every text, button, placeholder, focus ring and error (4.5:1 body, 3:1 large). Visible focus rings. Semantic HTML. 44px touch targets. Meaningful alt text.
 
-You can always add more later. Starting with fewer colors forces you to use them intentionally.
+**Motion.** Animate `transform` and `opacity` only. Continuous values (pointer, scroll progress) go through `useMotionValue`/`useTransform`/`useScroll` or ScrollTrigger, never React state or raw `scroll` listeners. Above motion 3, everything honours `prefers-reduced-motion` and collapses to static. Every animation has a one-sentence reason: hierarchy, story, feedback or state change. For motion 5 and up, read [MOTION.md](MOTION.md).
 
-### Layout grid
+**Icons.** One library: Phosphor, Hugeicons, Radix or Tabler (Lucide only if asked or already present). Consistent stroke width. A missing glyph means a second library, not a hand-drawn path.
 
-Use a 12-column grid with consistent gutters. Most layouts can be built with 12 columns.
+**Content.** Realistic text lengths and data. Names, brands and numbers sound real and specific (`47.2%`, not `99.99%`; a contextual brand, not Acme). Concrete verbs over "elevate, seamless, unleash", and the plain word over the fancy one ("use", not "leverage"). Each claim names what the product does or gives a number, not a feeling. Visible text uses periods, commas, colons or a hyphen; zero em or en dashes. Emoji only for a deliberately playful brief.
 
-## Design in the browser
+## 4. Branches
 
-Designing directly in code (HTML/CSS) has advantages:
+- **Landing page, portfolio, marketing or editorial page**: read [MARKETING.md](MARKETING.md) before building. It holds the hero rules, section flow, bento, imagery, copy and the marketing tells.
+- **Redesign of an existing site**: read [REDESIGN.md](REDESIGN.md) first; it decides the mode and the audit.
+- **Dashboards, data tables, wizards, editors, native mobile**: use the matching design system or specialist library (TanStack Table, AG Grid, Monaco). Apply only sections 1-3 here.
 
-- You see real rendering, real responsiveness
-- Faster iteration than design tools for some changes
-- No handoff problems
-- Version control
+## 5. Pre-flight
 
-Start with mobile, then scale up. It's easier to add space than to remove it.
+The work is done when every line holds. Check each against the actual code; if one fails, fix it and recheck.
 
-## Common patterns
-
-### Cards
-
-Cards group related content. Keep them simple:
-
-- Consistent padding (16px or 24px)
-- Subtle border or shadow to separate from background
-- Clear hierarchy: image, title, description, action
-
-### Forms
-
-- Labels above inputs, not beside
-- One column for most forms
-- Clear error states (red border, error message below)
-- Generous touch targets (44px minimum height on mobile)
-
-### Navigation
-
-- Keep primary nav minimal (5-7 items max)
-- Current page should be obvious
-- Mobile: hamburger menu or bottom nav
-- Breadcrumbs for deep hierarchies
-
-### Empty states
-
-Don't leave empty areas blank. Show:
-
-- What would normally be here
-- How to add content
-- An illustration if appropriate
-
-### Loading states
-
-- Skeleton screens over spinners when possible
-- Show progress for long operations
-- Don't block the whole UI if only part is loading
-
-## Avoiding AI-slop aesthetics
-
-Generated designs often look generic. To avoid this:
-
-**Be specific about what you want.** "A modern dashboard" gives you something forgettable. "A dashboard with a dark theme, data visualizations using a blue-to-purple gradient, compact information density, inspired by trading terminals" gives you something distinctive.
-
-**Add constraints.** Limit your color palette. Commit to a specific type scale. Use a consistent spacing system. Constraints create cohesion.
-
-**Look at real references.** Find interfaces you admire. Understand why they work. Borrow principles, not pixels.
-
-**Edit ruthlessly.** Generated designs often have too much going on. Remove decorative elements that don't serve a purpose. Simplify until it feels too simple, then add back one thing.
-
-**Test with real content.** Lorem ipsum hides problems. Use realistic text lengths, real images, actual data.
-
-## Responsive design
-
-Design for mobile first, then add complexity for larger screens.
-
-Breakpoints (common):
-
-- Mobile: up to 640px
-- Tablet: 641px to 1024px
-- Desktop: 1025px and up
-
-What changes between breakpoints:
-
-- Number of columns
-- Font sizes (slightly larger on desktop)
-- Navigation pattern
-- Amount of content visible
-
-What stays the same:
-
-- Color palette
-- Typography hierarchy
-- Brand elements
-- Core functionality
-
-## Accessibility basics
-
-- Color contrast: 4.5:1 minimum for text
-- Focus states: visible focus rings for keyboard navigation
-- Alt text: describe images meaningfully
-- Semantic HTML: use headings, lists, buttons correctly
-- Touch targets: 44x44px minimum
-
-These aren't nice-to-haves. They're requirements for usable interfaces.
-
-## Quick checklist
-
-Before shipping:
-
-- [ ] Consistent spacing from the scale
-- [ ] Typography hierarchy is clear
-- [ ] Colors meet contrast requirements
-- [ ] Works on mobile
-- [ ] Focus states are visible
-- [ ] Loading and error states exist
-- [ ] Empty states are handled
-- [ ] Real content has been reviewed
+- [ ] Design read and dials stated, and the build matches them.
+- [ ] Foundation chosen: official system as shipped, or aesthetic built honestly.
+- [ ] Spacing and type come from the scales.
+- [ ] One accent, one radius system, one theme, locked across the page.
+- [ ] Every text, button, form element and focus ring passes AA contrast in each shipped mode.
+- [ ] Loading, empty and error states exist.
+- [ ] Every multi-column layout has its mobile fallback; nothing scrolls sideways at 375px.
+- [ ] Motion is motivated, transform/opacity only, cleaned up in `useEffect`, and reduced-motion safe.
+- [ ] Every imported library is installed; icons come from one library.
+- [ ] Zero em or en dashes in visible text; copy read back once and every string makes sense.
+- [ ] Branch checklist passed (MARKETING.md or REDESIGN.md), if one applied.
+- [ ] You opened the page and looked at it, in both modes if it ships both.
